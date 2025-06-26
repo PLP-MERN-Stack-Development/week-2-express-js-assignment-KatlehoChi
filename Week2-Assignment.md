@@ -64,8 +64,8 @@ Build a RESTful API using Express.js that implements standard CRUD operations, p
 2. Clone your personal repository that was created by GitHub Classroom
 3. Add the following files to your repository:
    - All your project files (server.js, routes, middleware, etc.)
-   - A `README.md` file with:
-     - Instructions on how to run your server
+   - InstructiA `README.md` file with:
+     - ons on how to run your server
      - Documentation of your API endpoints
      - Examples of requests and responses
    - A `.env.example` file showing required environment variables

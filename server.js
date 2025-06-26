@@ -1,5 +1,12 @@
 // server.js - Starter Express server for Week 2 assignment
 
+const logger = require('./middleware/logger');
+const auth = require('./middleware/auth');
+const validateProduct = require('./middleware/validateProduct');
+const errorHandler = require('./middleware/errorHandler');
+const { NotFoundError } = require('./utils/errors');
+
+
 // Import required modules
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,6 +18,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(bodyParser.json());
+app.use(logger);
+
 
 // Sample in-memory products database
 let products = [
@@ -46,6 +55,39 @@ app.get('/', (req, res) => {
 });
 
 // TODO: Implement the following routes:
+
+// GET /api/products/:id
+app.get('/api/products/:id', (req, res, next) => {
+  const product = products.find(p => p.id === req.params.id);
+  if (!product) return next(new NotFoundError('Product not found'));
+  res.json(product);
+});
+
+// POST /api/products
+app.post('/api/products', auth, validateProduct, (req, res) => {
+  const newProduct = { id: uuidv4(), ...req.body };
+  products.push(newProduct);
+  res.status(201).json(newProduct);
+});
+
+// PUT /api/products/:id
+app.put('/api/products/:id', auth, validateProduct, (req, res, next) => {
+  const index = products.findIndex(p => p.id === req.params.id);
+  if (index === -1) return next(new NotFoundError('Product not found'));
+  products[index] = { ...products[index], ...req.body };
+  res.json(products[index]);
+});
+
+// DELETE /api/products/:id
+app.delete('/api/products/:id', auth, (req, res, next) => {
+  const index = products.findIndex(p => p.id === req.params.id);
+  if (index === -1) return next(new NotFoundError('Product not found'));
+  products.splice(index, 1);
+  res.status(204).send();
+});
+
+
+
 // GET /api/products - Get all products
 // GET /api/products/:id - Get a specific product
 // POST /api/products - Create a new product
@@ -61,6 +103,11 @@ app.get('/api/products', (req, res) => {
 // - Request logging
 // - Authentication
 // - Error handling
+
+// GET /api/products/:id
+
+app.use(errorHandler);
+
 
 // Start the server
 app.listen(PORT, () => {
